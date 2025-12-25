@@ -1,0 +1,10 @@
+region,territories_count,colour,reinforcements,reinforcements_per_territory
+Mirkwood,5,green,4,0.80
+Gondor,10,brown,7,0.70
+Arnor,11,red,7,0.64
+Rhovanion,8,orange,5,0.62
+Rohan,7,blue,4,0.57
+Rhûn,4,purple,2,0.50
+Eriador,7,yellow,3,0.43
+Mordor,6,grey,2,0.33
+Haradwaith,6,tan,2,0.33
