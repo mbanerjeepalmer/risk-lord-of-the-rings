@@ -185,6 +185,8 @@
   },
   "active": "20af6925c75d4ac9",
   "lastOpenFiles": [
+    "adjacencies.csv",
+    "uv.lock",
     "lu6368071jbhvs.tmp",
     "territories.csv",
     "regions.csv",
@@ -194,8 +196,6 @@
     "README.md",
     "pyproject.toml",
     "main.py",
-    "q1_reinforcement_efficiency.py",
-    "q1_",
-    "lu6114891hwtib.tmp"
+    "q1_reinforcement_efficiency.py"
   ]
 }
