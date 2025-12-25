@@ -183,8 +183,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "2009f51d612396b1",
+  "active": "20af6925c75d4ac9",
   "lastOpenFiles": [
+    "lu6368071jbhvs.tmp",
+    "territories.csv",
     "regions.csv",
     "q2_reinforcement_efficiency.py",
     "q2_reinforcement_efficiency.csv",
@@ -194,7 +196,6 @@
     "main.py",
     "q1_reinforcement_efficiency.py",
     "q1_",
-    "lu6114891hwtib.tmp",
-    "territories.csv"
+    "lu6114891hwtib.tmp"
   ]
 }
