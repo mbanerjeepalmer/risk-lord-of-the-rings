@@ -1,0 +1,1124 @@
+region,territory,links_to
+rhun,north rhun,withered heath
+rhun,north rhun,forodwaith
+rhun,north rhun,south rhun
+rhun,withered heath,north rhun
+rhun,withered heath,forodwaith
+,withered heath,esgaroth
+rhun,south rhun,brown lands
+,south rhun,north rhun
+rhun,esgaroth,withered heath
+,esgaroth,north mirkwood
+mirkwood,north mirkwood,esgaroth
+,north mirkwood,carrock
+,north mirkwood,eastern mirkwood
+mirkwood,eastern mirkwood,north mirkwood
+,eastern mirkwood,anduin valley
+,eastern mirkwood,south mirkwood
+,eastern mirkwood,brown lands
+mirkwood,south mirkwood,eastern mirkwood
+mirkwood,south mirkwood,brown lands
+mirkwood,south mirkwood,anduin valley
+mirkwood,south mirkwood,emyn muil
+mirkwood,anduin valley,eastern mirkwood
+mirkwood,anduin valley,south mirkwood
+mirkwood,anduin valley,emyn muil
+mirkwood,anduin valley,carrock
+mirkwood,anduin valley,gladden fields
+mirkwood,carrock,north mirkwood
+mirkwood,carrock,anduin valley
+mirkwood,carrock,eastern angmar
+mirkwood,carrock,rhudaur
+arnor,eastern angmar,carrock
+arnor,eastern angmar,forodwaith
+arnor,forodwaith,eastern angmar
+arnor,forodwaith,withered heath
+arnor,forodwaith,north rhun
+arnor,forodwaith,angmar
+arnor,forodwaith,borderlands
+arnor,forodwaith,mithlond
+arnor,angmar,borderlands
+arnor,angmar,forodwaith
+arnor,borderlands,angmar
+arnor,borderlands,forodwaith
+arnor,borderlands,north downs
+arnor,borderlands,fornost
+arnor,borderlands,weather hills
+arnor,borderlands,evendim hills
+arnor,borderlands,lune valley
+arnor,rhudaur,weather hills
+arnor,rhudaur,carrock
+arnor,rhudaur,eregion
+arnor,weather hills,borderlands
+arnor,weather hills,fornost
+arnor,weather hills,old forest
+arnor,weather hills,south downs
+arnor,weather hills,rhudaur
+arnor,south downs,weather hills
+arnor,south downs,old forest
+arnor,south downs,buckland
+arnor,south downs,minhiriath
+arnor,buckland,south downs
+arnor,buckland,old forest
+arnor,buckland,fornost
+arnor,buckland,the shire
+arnor,fornost,buckland
+arnor,fornost,borderlands
+arnor,fornost,north downs
+arnor,fornost,weather hills
+arnor,fornost,old forest
+arnor,old forest,fornost
+arnor,old forest,buckland
+arnor,old forest,south downs
+arnor,old forest,weather hills
+arnor,north downs,fornost
+arnor,north downs,borderlands
+eriador,evendim hills,borderlands
+eriador,evendim hills,lune valley
+eriador,evendim hills,tower hills
+eriador,tower hills,evendim hills
+eriador,tower hills,the shire
+eriador,tower hills,lune valley
+eriador,tower hills,mithlond
+eriador,the shire,tower hills
+eriador,the shire,buckland
+eriador,lune valley,tower hills
+eriador,lune valley,evendim hills
+eriador,lune valley,mithlond
+eriador,forlindon,mithlond
+eriador,mithlond,forlindon
+eriador,mithlond,lune valley
+eriador,mithlond,tower hills
+eriador,mithlond,harlindon
+eriador,mithlond,forodwaith
+eriador,mithlond,minhiriath
+eriador,harlindon,mithlond
+rohan,minhiriath,south downs
+rohan,minhiriath,dunland
+rohan,minhiriath,enedwaith
+rohan,minhiriath,mithlond
+rohan,minhiriath,belfalas
+rohan,minhiriath,umbar
+rohan,eregion,rhudaur
+rohan,eregion,moria
+rohan,eregion,dunland
+rohan,dunland,eregion
+rohan,dunland,minhiriath
+rohan,dunland,enedwaith
+rohan,enedwaith,dunland
+rohan,enedwaith,minhiriath
+rohan,enedwaith,dunland
+rohan,fangorn,gap of rohan
+rohan,gap of rohan,fangorn
+rohan,gap of rohan,enedwaith
+rohan,gap of rohan,west rohan
+rohan,gap of rohan,minas tirith
+rohan,gap of rohan,the wold
+rohan,west rohan,gap of rohan
+rohan,west rohan,druwaith iaur
+gondor,andrast,anfalas
+gondor,druwaith iaur,west rohan
+gondor,druwaith iaur,anfalas
+gondor,anfalas,druwaith iaur
+gondor,anfalas,vale of erech
+gondor,anfalas,andrast
+gondor,vale of erech,anfalas
+gondor,vale of erech,lamedon
+gondor,lamedon,vale of erech
+gondor,lamedon,belfalas
+gondor,lamedon,lebennin
+gondor,belfalas,lamedon
+gondor,belfalas,lebennin
+gondor,belfalas,umbar
+gondor,belfalas,minhiriath
+gondor,lebennin,lamedon
+gondor,lebennin,belfalas
+gondor,lebennin,minas tirith
+gondor,minas tirith,gap of rohan
+gondor,minas tirith,lebennin
+gondor,minas tirith,ithilien
+gondor,ithilien,minas tirith
+gondor,ithilien,dead marshes
+gondor,ithilien,minas morgul
+gondor,ithilien,south ithilien
+gondor,south ithilien,ithilien
+gondor,south ithilien,harondor
+rhovanion,gladden fields,anduin valley
+rhovanion,gladden fields,moria
+rhovanion,gladden fields,lorien
+rhovanion,moria,gladden fields
+rhovanion,moria,eregion
+rhovanion,lorien,gladden fields
+rhovanion,lorien,the wold
+rhovanion,lorien,fangorn
+rhovanion,the wold,lorien
+rhovanion,the wold,fangorn
+rhovanion,the wold,gap of rohan
+rhovanion,the wold,emyn muil
+rhovanion,emyn muil,the wold
+rhovanion,emyn muil,dead marshes
+rhovanion,emyn muil,brown lands
+rhovanion,emyn muil,south mirkwood
+rhovanion,emyn muil,anduin valley
+rhovanion,brown lands,dead marshes
+rhovanion,brown lands,emyn muil
+rhovanion,brown lands,south mirkwood
+rhovanion,brown lands,eastern mirkwood
+rhovanion,brown lands,south rhun
+rhovanion,brown lands,rhun hills
+rhovanion,rhun hills,brown lands
+rhovanion,dead marshes,emyn muil
+rhovanion,dead marshes,brown lands
+rhovanion,dead marshes,udun vale
+rhovanion,dead marshes,ithilien
+mordor,udun vale,dead marshes
+mordor,udun vale,mount doom
+mordor,mount doom,udun vale
+mordor,mount doom,barad-dur
+mordor,mount doom,gorgoroth
+mordor,barad-dur,mount doom
+mordor,barad-dur,gorgoroth
+mordor,gorgoroth,barad-dur
+mordor,gorgoroth,mount doom
+mordor,gorgoroth,minas morgul
+mordor,gorgoroth,nurn
+mordor,nurn,gorgoroth
+mordor,minas morgul,gorgoroth
+mordor,minas morgul,ithilien
+haradwaith,harondor,south ithilien
+haradwaith,harondor,harad
+haradwaith,umbar,deep harad
+haradwaith,umbar,belfalas
+haradwaith,umbar,minhiriath
+haradwaith,deep harad,harad
+haradwaith,deep harad,umbar
+haradwaith,harad,deep harad
+haradwaith,harad,near harad
+haradwaith,harad,harondor
+haradwaith,near harad,khand
+haradwaith,near harad,harad
+haradwaith,khand,near harad
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,west rohan
+,,andrast
+,,druwaith iaur
+,,anfalas
+,,vale of erech
+,,lamedon
+,,belfalas
+,,lebennin
+,,minas tirith
+,,ithilien
+,,south ithilien
+,,gladden fields
+,,moria
+,,lorien
+,,the wold
+,,emyn muil
+,,brown lands
+,,rhun hills
+,,dead marshes
+,,udun vale
+,,mount doom
+,,barad-dur
+,,gorgoroth
+,,nurn
+,,minas morgul
+,,harondor
+,,umbar
+,,deep harad
+,,harad
+,,near harad
+,,khand
