@@ -8,6 +8,8 @@ Uses dynamic programming to calculate the probability distribution of outcomes.
 import click
 from collections import defaultdict
 from itertools import product
+from rich.console import Console
+from rich.table import Table
 
 
 def roll_dice(num_dice):
@@ -118,10 +120,12 @@ def main(attackers, defenders, verbose):
         click.echo("Error: Both attackers and defenders must be positive.", err=True)
         return 1
 
-    click.echo(f"\n{'=' * 60}")
-    click.echo(f"Risk Battle Probability Calculator")
-    click.echo(f"{'=' * 60}")
-    click.echo(f"Initial: {attackers} attackers vs {defenders} defenders\n")
+    console = Console()
+
+    console.print(f"\n{'=' * 60}")
+    console.print(f"Risk Battle Probability Calculator")
+    console.print(f"{'=' * 60}")
+    console.print(f"Initial: {attackers} attackers vs {defenders} defenders\n")
 
     # Compute probabilities
     outcomes = compute_battle_probabilities(attackers, defenders)
@@ -130,23 +134,36 @@ def main(attackers, defenders, verbose):
     attacker_wins = sum(prob for (a, d), prob in outcomes.items() if d == 0)
     defender_wins = sum(prob for (a, d), prob in outcomes.items() if a == 0)
 
-    click.echo(f"Summary:")
-    click.echo(f"  Attacker wins: {format_probability(attacker_wins)}")
-    click.echo(f"  Defender wins: {format_probability(defender_wins)}")
+    console.print(f"Summary:")
+    console.print(f"  Attacker wins: {format_probability(attacker_wins)}")
+    console.print(f"  Defender wins: {format_probability(defender_wins)}")
 
     if verbose:
-        click.echo(f"\nDetailed outcomes:")
-        click.echo(f"{'Final State':<30} {'Probability':<15}")
-        click.echo(f"{'-' * 45}")
+        console.print(f"\nDetailed outcomes:")
+
+        # Create a rich table with attack and defense losses as columns
+        table = Table(title="Battle Outcome Probabilities", show_header=True, header_style="bold magenta")
+        table.add_column("Attackers Left", style="cyan", justify="center")
+        table.add_column("Defenders Left", style="yellow", justify="center")
+        table.add_column("Probability", justify="right")
 
         # Sort by probability (descending)
         for (a, d), prob in sorted(outcomes.items(), key=lambda x: x[1], reverse=True):
-            state = f"{a} attackers, {d} defenders"
-            click.echo(f"{state:<30} {format_probability(prob):<15}")
-    else:
-        click.echo(f"\nUse --verbose to see all possible final states")
+            # Color coding based on outcome
+            if d == 0:  # Attacker wins
+                prob_str = f"[bold green]{format_probability(prob)}[/bold green]"
+            elif a == 0:  # Defender wins
+                prob_str = f"[bold red]{format_probability(prob)}[/bold red]"
+            else:  # Ongoing battle (shouldn't happen in final outcomes)
+                prob_str = f"[yellow]{format_probability(prob)}[/yellow]"
 
-    click.echo(f"\n{'=' * 60}\n")
+            table.add_row(str(a), str(d), prob_str)
+
+        console.print(table)
+    else:
+        console.print(f"\nUse --verbose to see all possible final states")
+
+    console.print(f"\n{'=' * 60}\n")
 
 
 if __name__ == '__main__':
