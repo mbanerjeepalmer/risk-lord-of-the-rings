@@ -4,18 +4,18 @@ rhun,north rhun,forodwaith
 rhun,north rhun,south rhun
 rhun,withered heath,north rhun
 rhun,withered heath,forodwaith
-,withered heath,esgaroth
+rhun,withered heath,esgaroth
 rhun,south rhun,brown lands
-,south rhun,north rhun
+rhun,south rhun,north rhun
 rhun,esgaroth,withered heath
-,esgaroth,north mirkwood
+rhun,esgaroth,north mirkwood
 mirkwood,north mirkwood,esgaroth
-,north mirkwood,carrock
-,north mirkwood,eastern mirkwood
+mirkwood,north mirkwood,carrock
+mirkwood,north mirkwood,eastern mirkwood
 mirkwood,eastern mirkwood,north mirkwood
-,eastern mirkwood,anduin valley
-,eastern mirkwood,south mirkwood
-,eastern mirkwood,brown lands
+mirkwood,eastern mirkwood,anduin valley
+mirkwood,eastern mirkwood,south mirkwood
+mirkwood,eastern mirkwood,brown lands
 mirkwood,south mirkwood,eastern mirkwood
 mirkwood,south mirkwood,brown lands
 mirkwood,south mirkwood,anduin valley

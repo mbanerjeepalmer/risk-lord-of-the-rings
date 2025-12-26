@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Territory Connections Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f1419;
+            color: #e6edf3;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #58a6ff;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #58a6ff;
+        }
+
+        .stat-label {
+            color: #8b949e;
+            margin-top: 5px;
+        }
+
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .controls label {
+            color: #8b949e;
+        }
+
+        .controls select, .controls input {
+            background: #161b22;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #161b22;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        th {
+            background: #1c2128;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #58a6ff;
+            border-bottom: 2px solid #30363d;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: #22272e;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #21262d;
+        }
+
+        tr:hover {
+            background: #1c2128;
+        }
+
+        .region-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: #1f6feb;
+            color: white;
+        }
+
+        .connection-count {
+            font-weight: 600;
+            color: #58a6ff;
+        }
+
+        .cross-region-count {
+            font-weight: 600;
+            color: #f85149;
+        }
+
+        .high-connections {
+            background-color: rgba(88, 166, 255, 0.1);
+        }
+
+        .high-cross-region {
+            background-color: rgba(248, 81, 73, 0.1);
+        }
+
+        .section {
+            margin: 40px 0;
+        }
+
+        .section h2 {
+            color: #58a6ff;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .region-section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .region-header {
+            font-size: 1.3em;
+            color: #58a6ff;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .region-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+        }
+
+        .sort-indicator {
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Territory Connections Analysis</h1>
+        <p style="color: #8b949e; margin-bottom: 20px;">Analysis of territory connections and cross-region links</p>
+
+        <div style="margin: 20px 0; padding: 15px; background: #161b22; border: 1px solid #30363d; border-radius: 6px;">
+            <label for="csvFile" style="cursor: pointer; color: #58a6ff;">
+                Load CSV file:
+                <input type="file" id="csvFile" accept=".csv" style="margin-left: 10px;">
+            </label>
+            <span id="fileStatus" style="margin-left: 15px; color: #8b949e;"></span>
+        </div>
+
+        <div class="summary" id="summary"></div>
+
+        <div class="controls">
+            <div>
+                <label for="regionFilter">Filter by region: </label>
+                <select id="regionFilter">
+                    <option value="">All Regions</option>
+                </select>
+            </div>
+            <div>
+                <label for="sortBy">Sort by: </label>
+                <select id="sortBy">
+                    <option value="connections">Total Connections</option>
+                    <option value="crossRegion">Cross-Region Connections</option>
+                    <option value="territory">Territory Name</option>
+                    <option value="region">Region</option>
+                </select>
+            </div>
+            <div>
+                <label for="minConnections">Min connections: </label>
+                <input type="number" id="minConnections" min="0" value="0" style="width: 80px;">
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Territory Connection Details</h2>
+            <table id="territoryTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('territory')">Territory <span class="sort-indicator"></span></th>
+                        <th onclick="sortTable('region')">Region <span class="sort-indicator"></span></th>
+                        <th onclick="sortTable('connections')">Total Connections <span class="sort-indicator">▼</span></th>
+                        <th onclick="sortTable('crossRegion')">Cross-Region <span class="sort-indicator"></span></th>
+                        <th onclick="sortTable('percentage')">% Cross-Region <span class="sort-indicator"></span></th>
+                        <th>Connected Territories</th>
+                    </tr>
+                </thead>
+                <tbody id="territoryTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section" id="regionAnalysis">
+            <h2>Analysis by Region</h2>
+        </div>
+    </div>
+
+    <script>
+        // Parse CSV data
+        function parseCSV(csvData) {
+            const lines = csvData.trim().split('\n').slice(1); // Skip header
+            const connections = {};
+            const regionMap = {};
+
+            lines.forEach(line => {
+                const [region, territory, linksTo] = line.split(',').map(s => s.trim());
+
+                if (!territory || !linksTo) return;
+
+                if (!connections[territory]) {
+                    connections[territory] = [];
+                    regionMap[territory] = region || 'unknown';
+                }
+
+                connections[territory].push({
+                    territory: linksTo,
+                    region: region || 'unknown'
+                });
+            });
+
+            return { connections, regionMap };
+        }
+
+        let connections = {};
+        let regionMap = {};
+
+        // Calculate statistics for each territory
+        function calculateStats() {
+            const stats = [];
+
+            Object.keys(connections).forEach(territory => {
+                const territoryRegion = regionMap[territory];
+                const totalConnections = connections[territory].length;
+
+                // Count cross-region connections
+                const crossRegionConnections = connections[territory].filter(conn => {
+                    const connectedRegion = regionMap[conn.territory];
+                    return connectedRegion && territoryRegion && connectedRegion !== territoryRegion;
+                }).length;
+
+                const percentage = totalConnections > 0 ? (crossRegionConnections / totalConnections * 100).toFixed(1) : 0;
+
+                stats.push({
+                    territory,
+                    region: territoryRegion,
+                    totalConnections,
+                    crossRegionConnections,
+                    percentage: parseFloat(percentage),
+                    connectedTerritories: connections[territory].map(c => c.territory)
+                });
+            });
+
+            return stats;
+        }
+
+        let territoryStats = calculateStats();
+
+        // Display summary statistics
+        function displaySummary() {
+            const totalTerritories = territoryStats.length;
+            const totalConnections = territoryStats.reduce((sum, t) => sum + t.totalConnections, 0);
+            const totalCrossRegion = territoryStats.reduce((sum, t) => sum + t.crossRegionConnections, 0);
+            const avgConnections = (totalConnections / totalTerritories).toFixed(1);
+
+            const maxConnections = Math.max(...territoryStats.map(t => t.totalConnections));
+            const maxCrossRegion = Math.max(...territoryStats.map(t => t.crossRegionConnections));
+
+            const mostConnected = territoryStats.find(t => t.totalConnections === maxConnections);
+            const mostCrossRegion = territoryStats.find(t => t.crossRegionConnections === maxCrossRegion);
+
+            document.getElementById('summary').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalTerritories}</div>
+                    <div class="stat-label">Total Territories</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalConnections}</div>
+                    <div class="stat-label">Total Connections</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalCrossRegion}</div>
+                    <div class="stat-label">Cross-Region Connections</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${avgConnections}</div>
+                    <div class="stat-label">Avg Connections per Territory</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${mostConnected.territory}</div>
+                    <div class="stat-label">Most Connected (${mostConnected.totalConnections})</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${mostCrossRegion.territory}</div>
+                    <div class="stat-label">Most Cross-Region (${mostCrossRegion.crossRegionConnections})</div>
+                </div>
+            `;
+        }
+
+        // Populate region filter
+        function populateRegionFilter() {
+            const regions = [...new Set(Object.values(regionMap))].sort();
+            const select = document.getElementById('regionFilter');
+            regions.forEach(region => {
+                const option = document.createElement('option');
+                option.value = region;
+                option.textContent = region.charAt(0).toUpperCase() + region.slice(1);
+                select.appendChild(option);
+            });
+        }
+
+        let currentSort = 'connections';
+        let sortDirection = 'desc';
+
+        function sortTable(column) {
+            if (currentSort === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort = column;
+                sortDirection = column === 'territory' || column === 'region' ? 'asc' : 'desc';
+            }
+
+            renderTable();
+        }
+
+        // Render the table
+        function renderTable() {
+            const regionFilter = document.getElementById('regionFilter').value;
+            const minConnections = parseInt(document.getElementById('minConnections').value) || 0;
+
+            let filtered = territoryStats.filter(t => {
+                if (regionFilter && t.region !== regionFilter) return false;
+                if (t.totalConnections < minConnections) return false;
+                return true;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                let aVal, bVal;
+
+                switch(currentSort) {
+                    case 'territory':
+                        aVal = a.territory.toLowerCase();
+                        bVal = b.territory.toLowerCase();
+                        break;
+                    case 'region':
+                        aVal = a.region.toLowerCase();
+                        bVal = b.region.toLowerCase();
+                        break;
+                    case 'connections':
+                        aVal = a.totalConnections;
+                        bVal = b.totalConnections;
+                        break;
+                    case 'crossRegion':
+                        aVal = a.crossRegionConnections;
+                        bVal = b.crossRegionConnections;
+                        break;
+                    case 'percentage':
+                        aVal = a.percentage;
+                        bVal = b.percentage;
+                        break;
+                }
+
+                if (sortDirection === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+
+            const tbody = document.getElementById('territoryTableBody');
+            tbody.innerHTML = filtered.map(t => {
+                const highConnections = t.totalConnections >= 5;
+                const highCrossRegion = t.crossRegionConnections >= 3;
+                const rowClass = highConnections && highCrossRegion ? 'high-connections high-cross-region' :
+                                highConnections ? 'high-connections' :
+                                highCrossRegion ? 'high-cross-region' : '';
+
+                return `
+                    <tr class="${rowClass}">
+                        <td><strong>${t.territory}</strong></td>
+                        <td><span class="region-badge">${t.region}</span></td>
+                        <td><span class="connection-count">${t.totalConnections}</span></td>
+                        <td><span class="cross-region-count">${t.crossRegionConnections}</span></td>
+                        <td>${t.percentage}%</td>
+                        <td style="font-size: 0.9em; color: #8b949e;">${t.connectedTerritories.join(', ')}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Update sort indicators
+            document.querySelectorAll('th .sort-indicator').forEach(el => el.textContent = '');
+            const headers = ['territory', 'region', 'connections', 'crossRegion', 'percentage'];
+            const index = headers.indexOf(currentSort);
+            if (index >= 0) {
+                const indicator = document.querySelectorAll('th .sort-indicator')[index];
+                indicator.textContent = sortDirection === 'asc' ? '▲' : '▼';
+            }
+        }
+
+        // Region analysis
+        function displayRegionAnalysis() {
+            const regionStats = {};
+
+            territoryStats.forEach(t => {
+                if (!regionStats[t.region]) {
+                    regionStats[t.region] = {
+                        territories: 0,
+                        totalConnections: 0,
+                        crossRegionConnections: 0,
+                        territoryList: []
+                    };
+                }
+
+                regionStats[t.region].territories++;
+                regionStats[t.region].totalConnections += t.totalConnections;
+                regionStats[t.region].crossRegionConnections += t.crossRegionConnections;
+                regionStats[t.region].territoryList.push(t);
+            });
+
+            const container = document.getElementById('regionAnalysis');
+
+            Object.keys(regionStats).sort().forEach(region => {
+                const stats = regionStats[region];
+                const avgConnections = (stats.totalConnections / stats.territories).toFixed(1);
+                const crossRegionPercentage = ((stats.crossRegionConnections / stats.totalConnections) * 100).toFixed(1);
+
+                const topConnected = [...stats.territoryList]
+                    .sort((a, b) => b.totalConnections - a.totalConnections)
+                    .slice(0, 5);
+
+                const topCrossRegion = [...stats.territoryList]
+                    .sort((a, b) => b.crossRegionConnections - a.crossRegionConnections)
+                    .slice(0, 5);
+
+                const div = document.createElement('div');
+                div.className = 'region-section';
+                div.innerHTML = `
+                    <div class="region-header">
+                        <span>${region.charAt(0).toUpperCase() + region.slice(1)}</span>
+                        <div class="region-stats">
+                            <span>${stats.territories} territories</span>
+                            <span>${stats.totalConnections} total connections</span>
+                            <span>${stats.crossRegionConnections} cross-region (${crossRegionPercentage}%)</span>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <strong style="color: #58a6ff;">Most Connected Territories:</strong>
+                            <ul style="margin-top: 10px; padding-left: 20px;">
+                                ${topConnected.map(t => `<li>${t.territory}: ${t.totalConnections} connections</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div>
+                            <strong style="color: #f85149;">Most Cross-Region Connections:</strong>
+                            <ul style="margin-top: 10px; padding-left: 20px;">
+                                ${topCrossRegion.map(t => `<li>${t.territory}: ${t.crossRegionConnections} cross-region</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Load data from file input
+        function loadDataFromFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const csvData = e.target.result;
+                const parsed = parseCSV(csvData);
+                connections = parsed.connections;
+                regionMap = parsed.regionMap;
+                territoryStats = calculateStats();
+
+                displaySummary();
+                populateRegionFilter();
+                renderTable();
+                displayRegionAnalysis();
+
+                document.getElementById('fileStatus').textContent = `✓ Loaded ${file.name}`;
+                document.getElementById('fileStatus').style.color = '#3fb950';
+            };
+            reader.onerror = function() {
+                document.getElementById('fileStatus').textContent = '✗ Error loading file';
+                document.getElementById('fileStatus').style.color = '#f85149';
+            };
+            reader.readAsText(file);
+        }
+
+        // Event listeners
+        document.getElementById('csvFile').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                loadDataFromFile(e.target.files[0]);
+            }
+        });
+
+        document.getElementById('regionFilter').addEventListener('change', renderTable);
+        document.getElementById('sortBy').addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            sortDirection = 'desc';
+            renderTable();
+        });
+        document.getElementById('minConnections').addEventListener('input', renderTable);
+
+        // Show instructions
+        document.getElementById('fileStatus').textContent = 'Please select edges.csv to begin';
+    </script>
+</body>
+</html>
