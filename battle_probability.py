@@ -146,18 +146,28 @@ def main(attackers, defenders, verbose):
         table.add_column("Attackers Left", style="cyan", justify="center")
         table.add_column("Defenders Left", style="yellow", justify="center")
         table.add_column("Probability", justify="right")
+        table.add_column("Cumulative (≥N attackers)", justify="right")
 
-        # Sort by probability (descending)
-        for (a, d), prob in sorted(outcomes.items(), key=lambda x: x[1], reverse=True):
+        # Sort by attackers remaining (descending), then by defenders remaining (descending)
+        sorted_outcomes = sorted(outcomes.items(), key=lambda x: (x[0][0], x[0][1]), reverse=True)
+
+        # Calculate cumulative probabilities (chance of having at least N attackers)
+        cumulative = 0.0
+        for (a, d), prob in sorted_outcomes:
+            cumulative += prob
+
             # Color coding based on outcome
             if d == 0:  # Attacker wins
                 prob_str = f"[bold green]{format_probability(prob)}[/bold green]"
+                cum_str = f"[bold green]{format_probability(cumulative)}[/bold green]"
             elif a == 0:  # Defender wins
                 prob_str = f"[bold red]{format_probability(prob)}[/bold red]"
+                cum_str = f"[bold red]{format_probability(cumulative)}[/bold red]"
             else:  # Ongoing battle (shouldn't happen in final outcomes)
                 prob_str = f"[yellow]{format_probability(prob)}[/yellow]"
+                cum_str = f"[yellow]{format_probability(cumulative)}[/yellow]"
 
-            table.add_row(str(a), str(d), prob_str)
+            table.add_row(str(a), str(d), prob_str, cum_str)
 
         console.print(table)
     else:
