@@ -84,6 +84,50 @@
             font-size: 0.85em;
         }
 
+        .view-toggle {
+            margin-top: 15px;
+            padding: 10px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+
+        .view-toggle label {
+            display: block;
+            color: #8b949e;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .toggle-button {
+            flex: 1;
+            padding: 8px;
+            background: #0d1117;
+            color: #8b949e;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .toggle-button:hover {
+            background: #161b22;
+            border-color: #58a6ff;
+        }
+
+        .toggle-button.active {
+            background: #58a6ff;
+            color: #fff;
+            border-color: #58a6ff;
+        }
+
         #canvas {
             width: 100vw;
             height: 100vh;
@@ -140,6 +184,13 @@
             <label for="csvFile">Upload your own CSV:</label>
             <input type="file" id="csvFile" accept=".csv">
         </div>
+        <div class="view-toggle">
+            <label>View Mode:</label>
+            <div class="toggle-buttons">
+                <div class="toggle-button active" data-view="territories">Territories</div>
+                <div class="toggle-button" data-view="regions">Regions</div>
+            </div>
+        </div>
     </div>
 
     <div id="legend">
@@ -190,9 +241,12 @@
 
         let nodes = [];
         let edges = [];
+        let regionNodes = [];
+        let regionEdges = [];
         let dragging = null;
         let offsetX = 0;
         let offsetY = 0;
+        let viewMode = 'territories'; // 'territories' or 'regions'
 
         // Parse CSV data
         function parseCSV(csvData) {
@@ -200,6 +254,7 @@
             const territoryMap = new Map();
             const edgeSet = new Set();
             const regionMap = new Map();
+            const territoryConnections = new Map(); // Track all connections per territory
 
             lines.forEach(line => {
                 const [region, territory, linksTo] = line.split(',').map(s => s.trim());
@@ -210,6 +265,7 @@
                 if (!territoryMap.has(territory)) {
                     territoryMap.set(territory, new Set());
                     regionMap.set(territory, normalizedRegion);
+                    territoryConnections.set(territory, { inter: 0, intra: 0 });
                 }
 
                 territoryMap.get(territory).add(linksTo);
@@ -219,10 +275,30 @@
                 edgeSet.add(edgeKey);
             });
 
+            // Calculate inter/intra region connections
+            territoryMap.forEach((connections, territory) => {
+                const territoryRegion = regionMap.get(territory);
+                let inter = 0;
+                let intra = 0;
+
+                connections.forEach(connectedTerritory => {
+                    const connectedRegion = regionMap.get(connectedTerritory);
+                    if (connectedRegion === territoryRegion) {
+                        intra++;
+                    } else {
+                        inter++;
+                    }
+                });
+
+                territoryConnections.set(territory, { inter, intra });
+            });
+
             // Create nodes
             nodes = Array.from(territoryMap.entries()).map(([name, connections]) => ({
                 name,
                 connections: connections.size,
+                inter: territoryConnections.get(name).inter,
+                intra: territoryConnections.get(name).intra,
                 region: regionMap.get(name) || 'unknown',
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
@@ -230,14 +306,87 @@
                 vy: 0
             }));
 
-            // Create edges
+            // Create edges with region info
             edges = Array.from(edgeSet).map(key => {
                 const [source, target] = key.split('|');
-                return { source, target };
+                return {
+                    source,
+                    target,
+                    sourceRegion: regionMap.get(source),
+                    targetRegion: regionMap.get(target)
+                };
             });
+
+            // Create region view
+            createRegionView(regionMap, territoryMap);
 
             statusDiv.className = 'success';
             statusDiv.textContent = `✓ Loaded ${nodes.length} territories with ${edges.length} connections`;
+        }
+
+        // Create aggregated region view
+        function createRegionView(regionMap, territoryMap) {
+            const regionConnectionMap = new Map();
+            const regionEdgeSet = new Set();
+
+            // Count connections between regions
+            edges.forEach(edge => {
+                const sourceRegion = regionMap.get(edge.source);
+                const targetRegion = regionMap.get(edge.target);
+
+                if (!regionConnectionMap.has(sourceRegion)) {
+                    regionConnectionMap.set(sourceRegion, new Map());
+                }
+                if (!regionConnectionMap.has(targetRegion)) {
+                    regionConnectionMap.set(targetRegion, new Map());
+                }
+
+                // Track inter-region connections
+                if (sourceRegion !== targetRegion) {
+                    const edgeKey = [sourceRegion, targetRegion].sort().join('|');
+                    regionEdgeSet.add(edgeKey);
+                }
+            });
+
+            // Count total connections per region (including internal)
+            const regionTotalConnections = new Map();
+            edges.forEach(edge => {
+                const sourceRegion = regionMap.get(edge.source);
+                const targetRegion = regionMap.get(edge.target);
+
+                regionTotalConnections.set(sourceRegion, (regionTotalConnections.get(sourceRegion) || 0) + 1);
+                regionTotalConnections.set(targetRegion, (regionTotalConnections.get(targetRegion) || 0) + 1);
+            });
+
+            // Create region nodes
+            regionNodes = Array.from(new Set(regionMap.values())).map(region => {
+                const totalConnections = regionTotalConnections.get(region) || 0;
+                const interRegionConnections = Array.from(regionEdgeSet)
+                    .filter(key => key.includes(region)).length;
+
+                return {
+                    name: region,
+                    connections: totalConnections,
+                    inter: interRegionConnections,
+                    intra: totalConnections - interRegionConnections,
+                    region: region,
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: 0,
+                    vy: 0
+                };
+            });
+
+            // Create region edges
+            regionEdges = Array.from(regionEdgeSet).map(key => {
+                const [source, target] = key.split('|');
+                return {
+                    source,
+                    target,
+                    sourceRegion: source,
+                    targetRegion: target
+                };
+            });
         }
 
         // Physics simulation
@@ -248,12 +397,15 @@
             const attraction = 0.001;
             const damping = 0.9;
 
+            const currentNodes = viewMode === 'territories' ? nodes : regionNodes;
+            const currentEdges = viewMode === 'territories' ? edges : regionEdges;
+
             // Apply forces
-            nodes.forEach(node => {
+            currentNodes.forEach(node => {
                 if (node === dragging) return;
 
                 // Repulsion from other nodes
-                nodes.forEach(other => {
+                currentNodes.forEach(other => {
                     if (node === other) return;
                     const dx = node.x - other.x;
                     const dy = node.y - other.y;
@@ -264,12 +416,12 @@
                 });
 
                 // Attraction along edges
-                edges.forEach(edge => {
+                currentEdges.forEach(edge => {
                     let other = null;
                     if (edge.source === node.name) {
-                        other = nodes.find(n => n.name === edge.target);
+                        other = currentNodes.find(n => n.name === edge.target);
                     } else if (edge.target === node.name) {
-                        other = nodes.find(n => n.name === edge.source);
+                        other = currentNodes.find(n => n.name === edge.source);
                     }
 
                     if (other) {
@@ -300,27 +452,55 @@
             });
         }
 
+        // Draw split-colored edge
+        function drawSplitEdge(x1, y1, x2, y2, color1, color2) {
+            // Calculate perpendicular offset for split effect
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const len = Math.sqrt(dx * dx + dy * dy);
+            const perpX = -dy / len;
+            const perpY = dx / len;
+            const offset = 1.5; // Offset for gap between lines
+            const lineWidth = 1.5; // Thinner lines
+
+            // Draw first half (color1 side)
+            ctx.strokeStyle = color1;
+            ctx.lineWidth = lineWidth;
+            ctx.beginPath();
+            ctx.moveTo(x1 + perpX * offset, y1 + perpY * offset);
+            ctx.lineTo(x2 + perpX * offset, y2 + perpY * offset);
+            ctx.stroke();
+
+            // Draw second half (color2 side)
+            ctx.strokeStyle = color2;
+            ctx.lineWidth = lineWidth;
+            ctx.beginPath();
+            ctx.moveTo(x1 - perpX * offset, y1 - perpY * offset);
+            ctx.lineTo(x2 - perpX * offset, y2 - perpY * offset);
+            ctx.stroke();
+        }
+
         // Draw everything
         function draw() {
             ctx.fillStyle = '#0f1419';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw edges
-            ctx.strokeStyle = 'rgba(48, 54, 61, 0.6)';
-            ctx.lineWidth = 1;
-            edges.forEach(edge => {
-                const source = nodes.find(n => n.name === edge.source);
-                const target = nodes.find(n => n.name === edge.target);
+            const currentNodes = viewMode === 'territories' ? nodes : regionNodes;
+            const currentEdges = viewMode === 'territories' ? edges : regionEdges;
+
+            // Draw edges with split colors
+            currentEdges.forEach(edge => {
+                const source = currentNodes.find(n => n.name === edge.source);
+                const target = currentNodes.find(n => n.name === edge.target);
                 if (source && target) {
-                    ctx.beginPath();
-                    ctx.moveTo(source.x, source.y);
-                    ctx.lineTo(target.x, target.y);
-                    ctx.stroke();
+                    const color1 = regionColors[edge.sourceRegion] || '#58a6ff';
+                    const color2 = regionColors[edge.targetRegion] || '#58a6ff';
+                    drawSplitEdge(source.x, source.y, target.x, target.y, color1, color2);
                 }
             });
 
             // Draw nodes
-            nodes.forEach(node => {
+            currentNodes.forEach(node => {
                 const radius = 6 + node.connections * 3;
                 const color = regionColors[node.region] || '#58a6ff';
 
@@ -335,14 +515,19 @@
                 ctx.lineWidth = 2;
                 ctx.stroke();
 
-                // Connection count
+                // Connection count (main number)
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(node.connections, node.x, node.y);
 
-                // Territory name
+                // Inter/intra breakdown (subtle, below main number)
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.font = '8px sans-serif';
+                ctx.fillText(`${node.inter}/${node.intra}`, node.x, node.y + radius - 4);
+
+                // Territory/region name
                 ctx.fillStyle = '#e6edf3';
                 ctx.font = '11px sans-serif';
                 ctx.fillText(node.name, node.x, node.y + radius + 12);
@@ -363,8 +548,10 @@
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
+            const currentNodes = viewMode === 'territories' ? nodes : regionNodes;
+
             // Find clicked node
-            for (let node of nodes) {
+            for (let node of currentNodes) {
                 const radius = 6 + node.connections * 3;
                 const dist = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
                 if (dist < radius) {
@@ -388,6 +575,23 @@
 
         canvas.addEventListener('mouseup', () => {
             dragging = null;
+        });
+
+        // View toggle
+        document.querySelectorAll('.toggle-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const newView = button.getAttribute('data-view');
+                if (newView !== viewMode) {
+                    viewMode = newView;
+                    dragging = null;
+
+                    // Update active state
+                    document.querySelectorAll('.toggle-button').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                }
+            });
         });
 
         // Load CSV from server
