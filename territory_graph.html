@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Territory Graph Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f1419;
+            color: #e6edf3;
+            overflow: hidden;
+        }
+
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(22, 27, 34, 0.95);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 100;
+            max-width: 300px;
+        }
+
+        #controls h2 {
+            color: #58a6ff;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        #status {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        #status.loading {
+            background: rgba(88, 166, 255, 0.1);
+            color: #58a6ff;
+        }
+
+        #status.error {
+            background: rgba(248, 81, 73, 0.1);
+            color: #f85149;
+        }
+
+        #status.success {
+            background: rgba(63, 185, 80, 0.1);
+            color: #3fb950;
+        }
+
+        .file-upload {
+            margin-top: 10px;
+            padding: 10px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+
+        .file-upload label {
+            display: block;
+            color: #8b949e;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .file-upload input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            background: #0d1117;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        #canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        .node-label {
+            pointer-events: none;
+            user-select: none;
+        }
+
+        #legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(22, 27, 34, 0.95);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 100;
+        }
+
+        #legend h3 {
+            color: #58a6ff;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 0.85em;
+        }
+
+        .legend-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 2px solid #fff;
+        }
+
+        .legend-text {
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <h2>Territory Graph</h2>
+        <div id="status" class="loading">Attempting to load edges.csv...</div>
+        <div class="file-upload">
+            <label for="csvFile">Upload your own CSV:</label>
+            <input type="file" id="csvFile" accept=".csv">
+        </div>
+    </div>
+
+    <div id="legend">
+        <h3>Node Size</h3>
+        <div class="legend-item">
+            <div class="legend-circle" style="width: 12px; height: 12px;"></div>
+            <div class="legend-text">1-2 connections</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-circle" style="width: 20px; height: 20px;"></div>
+            <div class="legend-text">3-4 connections</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-circle" style="width: 28px; height: 28px;"></div>
+            <div class="legend-text">5+ connections</div>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const statusDiv = document.getElementById('status');
+
+        // Set canvas size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            draw();
+        });
+
+        // Region colors
+        const regionColors = {
+            'arnor': '#ff4444',
+            'gondor': '#8b4513',
+            'rhovanion': '#ff8c00',
+            'rohan': '#4169e1',
+            'eriador': '#ffd700',
+            'mordor': '#808080',
+            'haradwaith': '#d2b48c',
+            'mirkwood': '#228b22',
+            'rhûn': '#9370db'
+        };
+
+        let nodes = [];
+        let edges = [];
+        let dragging = null;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        // Parse CSV data
+        function parseCSV(csvData) {
+            const lines = csvData.trim().split('\n').slice(1); // Skip header
+            const territoryMap = new Map();
+            const edgeSet = new Set();
+            const regionMap = new Map();
+
+            lines.forEach(line => {
+                const [region, territory, linksTo] = line.split(',').map(s => s.trim());
+                if (!territory || !linksTo) return;
+
+                const normalizedRegion = region.toLowerCase();
+
+                if (!territoryMap.has(territory)) {
+                    territoryMap.set(territory, new Set());
+                    regionMap.set(territory, normalizedRegion);
+                }
+
+                territoryMap.get(territory).add(linksTo);
+
+                // Create bidirectional edges (avoid duplicates)
+                const edgeKey = [territory, linksTo].sort().join('|');
+                edgeSet.add(edgeKey);
+            });
+
+            // Create nodes
+            nodes = Array.from(territoryMap.entries()).map(([name, connections]) => ({
+                name,
+                connections: connections.size,
+                region: regionMap.get(name) || 'unknown',
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: 0,
+                vy: 0
+            }));
+
+            // Create edges
+            edges = Array.from(edgeSet).map(key => {
+                const [source, target] = key.split('|');
+                return { source, target };
+            });
+
+            statusDiv.className = 'success';
+            statusDiv.textContent = `✓ Loaded ${nodes.length} territories with ${edges.length} connections`;
+        }
+
+        // Physics simulation
+        function simulate() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const repulsion = 3000;
+            const attraction = 0.001;
+            const damping = 0.9;
+
+            // Apply forces
+            nodes.forEach(node => {
+                if (node === dragging) return;
+
+                // Repulsion from other nodes
+                nodes.forEach(other => {
+                    if (node === other) return;
+                    const dx = node.x - other.x;
+                    const dy = node.y - other.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    const force = repulsion / (dist * dist);
+                    node.vx += (dx / dist) * force;
+                    node.vy += (dy / dist) * force;
+                });
+
+                // Attraction along edges
+                edges.forEach(edge => {
+                    let other = null;
+                    if (edge.source === node.name) {
+                        other = nodes.find(n => n.name === edge.target);
+                    } else if (edge.target === node.name) {
+                        other = nodes.find(n => n.name === edge.source);
+                    }
+
+                    if (other) {
+                        const dx = other.x - node.x;
+                        const dy = other.y - node.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        node.vx += dx * attraction;
+                        node.vy += dy * attraction;
+                    }
+                });
+
+                // Gentle pull towards center
+                node.vx += (centerX - node.x) * 0.0001;
+                node.vy += (centerY - node.y) * 0.0001;
+
+                // Apply velocity with damping
+                node.vx *= damping;
+                node.vy *= damping;
+                node.x += node.vx;
+                node.y += node.vy;
+
+                // Keep in bounds (soft constraint)
+                const margin = 100;
+                if (node.x < margin) node.vx += 1;
+                if (node.x > canvas.width - margin) node.vx -= 1;
+                if (node.y < margin) node.vy += 1;
+                if (node.y > canvas.height - margin) node.vy -= 1;
+            });
+        }
+
+        // Draw everything
+        function draw() {
+            ctx.fillStyle = '#0f1419';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw edges
+            ctx.strokeStyle = 'rgba(48, 54, 61, 0.6)';
+            ctx.lineWidth = 1;
+            edges.forEach(edge => {
+                const source = nodes.find(n => n.name === edge.source);
+                const target = nodes.find(n => n.name === edge.target);
+                if (source && target) {
+                    ctx.beginPath();
+                    ctx.moveTo(source.x, source.y);
+                    ctx.lineTo(target.x, target.y);
+                    ctx.stroke();
+                }
+            });
+
+            // Draw nodes
+            nodes.forEach(node => {
+                const radius = 6 + node.connections * 3;
+                const color = regionColors[node.region] || '#58a6ff';
+
+                // Node circle
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Node border
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Connection count
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(node.connections, node.x, node.y);
+
+                // Territory name
+                ctx.fillStyle = '#e6edf3';
+                ctx.font = '11px sans-serif';
+                ctx.fillText(node.name, node.x, node.y + radius + 12);
+            });
+        }
+
+        // Animation loop
+        let animationId;
+        function animate() {
+            simulate();
+            draw();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Mouse interaction
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Find clicked node
+            for (let node of nodes) {
+                const radius = 6 + node.connections * 3;
+                const dist = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+                if (dist < radius) {
+                    dragging = node;
+                    offsetX = x - node.x;
+                    offsetY = y - node.y;
+                    break;
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (dragging) {
+                const rect = canvas.getBoundingClientRect();
+                dragging.x = e.clientX - rect.left - offsetX;
+                dragging.y = e.clientY - rect.top - offsetY;
+                dragging.vx = 0;
+                dragging.vy = 0;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            dragging = null;
+        });
+
+        // Load CSV from server
+        async function loadFromServer() {
+            try {
+                const response = await fetch('edges.csv');
+                if (!response.ok) throw new Error('File not found');
+                const csvData = await response.text();
+                parseCSV(csvData);
+                animate();
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.textContent = 'Could not load edges.csv from server. Please upload your own CSV file.';
+            }
+        }
+
+        // Load CSV from file upload
+        document.getElementById('csvFile').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+
+                statusDiv.className = 'loading';
+                statusDiv.textContent = `Loading ${file.name}...`;
+
+                reader.onload = (event) => {
+                    try {
+                        parseCSV(event.target.result);
+                        if (animationId) {
+                            cancelAnimationFrame(animationId);
+                        }
+                        animate();
+                    } catch (error) {
+                        statusDiv.className = 'error';
+                        statusDiv.textContent = `Error parsing CSV: ${error.message}`;
+                    }
+                };
+
+                reader.onerror = () => {
+                    statusDiv.className = 'error';
+                    statusDiv.textContent = 'Error reading file';
+                };
+
+                reader.readAsText(file);
+            }
+        });
+
+        // Initial load
+        loadFromServer();
+    </script>
+</body>
+</html>
